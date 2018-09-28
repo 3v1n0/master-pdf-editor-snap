@@ -34,6 +34,38 @@ parts:
     after:
       - desktop-qt5
 
+  desktop-qt5:
+    override-build: |
+      set -xe
+      snapcraftctl build
+      export XDG_DATA_DIRS=$SNAPCRAFT_PART_INSTALL/usr/share
+      update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
+
+      for dir in $SNAPCRAFT_PART_INSTALL/usr/share/icons/*/; do
+        if [ -f $dir/index.theme ]; then
+          gtk-update-icon-cache-3.0 -q $dir
+        fi
+      done
+    stage:
+      - -./usr/share/fonts/**
+      - -./usr/share/themes/**
+      - -./usr/share/icons/**
+      - -./usr/share/sounds/**
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/usr/share/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/usr/share/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/usr/share/sounds
+    default-provider: gtk-common-themes
+
 apps:
   master-pdf-editor:
     command: desktop-launch $SNAP/masterpdfeditor5
