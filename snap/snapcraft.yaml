@@ -1,0 +1,53 @@
+name: master-pdf-editor
+version: 5.1.42
+architectures: [amd64] #i386
+summary: The best solution for working with PDF files in Linux
+description: |
+  Master PDF Editor is straightforward, easy to use application for working
+  with PDF documents equipped with powerful multi-purpose functionality.
+  With Master PDF Editor you can easily view, create and modify PDF documents.
+  The application enables you to merge several files into one, split a source
+  document into multiple documents, and also to comment, sign and encrypt PDF
+  files.
+
+grade: stable
+confinement: strict
+
+parts:
+  master-pdf-editor:
+    plugin: nil
+    source:
+      # - on i386:
+      #   https://code-industry.net/public/master-pdf-editor-$SNAPCRAFT_PROJECT_VERSION_i386.tar.gz
+      - on amd64: https://code-industry.net/public/$SNAPCRAFT_PROJECT_NAME-$SNAPCRAFT_PROJECT_VERSION_qt5.amd64.tar.gz
+      - else: fail
+    override-build: |
+      set -x
+      mkdir -p $SNAPCRAFT_PART_INSTALL/
+      cp -va * $SNAPCRAFT_PART_INSTALL/
+      sed -i "s|Path=.*|Path=${SNAP}|g" $SNAPCRAFT_PART_INSTALL/*.desktop
+      sed -i "s|Icon=.*/\([^\]\+\)|Icon=${SNAP}/\1|g" $SNAPCRAFT_PART_INSTALL/*.desktop
+      snapcraftctl build
+    stage-packages:
+      - libqt5network5
+      - libqt5printsupport5
+    after:
+      - desktop-qt5
+
+apps:
+  master-pdf-editor:
+    command: desktop-launch $SNAP/masterpdfeditor5
+    desktop: masterpdfeditor5.desktop
+    plugs:
+      - cups-control
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - home
+      - network
+      - network-bind
+      - network-manager
+      - opengl
+      - pulseaudio
+      - removable-media
+      - unity7
